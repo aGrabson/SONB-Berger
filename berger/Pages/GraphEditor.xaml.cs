@@ -1,4 +1,5 @@
-﻿using System;
+﻿using berger.Threads;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -25,18 +26,21 @@ namespace berger.Pages
         private Ellipse selectedNode = null;
         private Line createdLine = null;
         private bool isMiddleMouseDown = false;
+        public static ListenerThread listenerThread = new ListenerThread(true);
+
 
         public GraphEditor()
         {
             InitializeComponent();
             GraphCanvas.Loaded += (s, e) => InitCanvas();
+            listenerThread.start();
         }
         private void InitCanvas()
         {
             GraphCanvas.MouseLeftButtonDown += Canva_On_Click_Left;
             GraphCanvas.MouseMove += Canva_On_Mouse_Move;
             GraphCanvas.MouseMove += Canvas_MouseMove;
-            createNodeOnWorkspace(new Point(GraphCanvas.ActualWidth/2, GraphCanvas.ActualHeight/2), 50, 50, Brushes.Green);
+            createNodeOnWorkspace(new Point(GraphCanvas.ActualWidth / 2, GraphCanvas.ActualHeight / 2), 50, 50, Brushes.Green);
         }
 
 
@@ -44,11 +48,11 @@ namespace berger.Pages
         private void Canva_On_Click_Left(object sender, MouseButtonEventArgs e)
         {
             Point position = e.GetPosition(GraphCanvas);
-            createNodeOnWorkspace(position,20,20,Brushes.Sienna);
+            createNodeOnWorkspace(position, 20, 20, Brushes.Sienna);
         }
         private void Canva_On_Mouse_Move(object sender, MouseEventArgs e)
         {
-            if(createdLine != null)
+            if (createdLine != null)
             {
                 Point position = e.GetPosition(GraphCanvas);
                 createdLine.X2 = position.X;
@@ -57,9 +61,9 @@ namespace berger.Pages
         }
         private void Elipse_Click_Right(object sender, MouseButtonEventArgs e)
         {
-            if(sender is Ellipse clickedEllipse)
+            if (sender is Ellipse clickedEllipse)
             {
-                if(createdLine == null)
+                if (createdLine == null)
                 {
                     Line line = new Line();
                     line.Stroke = Brushes.Black;
@@ -73,7 +77,7 @@ namespace berger.Pages
                 }
                 else
                 {
-                    if(firstRightClickedElipse==clickedEllipse)
+                    if (firstRightClickedElipse == clickedEllipse)
                     {
                         GraphCanvas.Children.Remove(createdLine);
                         createdLine = null;
@@ -88,7 +92,7 @@ namespace berger.Pages
 
             }
         }
-        private void createNodeOnWorkspace(Point position,int width,int height, SolidColorBrush colorBrush)
+        private void createNodeOnWorkspace(Point position, int width, int height, SolidColorBrush colorBrush)
         {
             Ellipse ellipse = new Ellipse();
             ellipse.Width = width;
@@ -110,7 +114,7 @@ namespace berger.Pages
 
         private void Canvas_MouseMove(object sender, MouseEventArgs e)
         {
-            if(selectedNode!=null)
+            if (selectedNode != null)
             {
                 Point position = e.GetPosition(GraphCanvas);
                 Canvas.SetLeft(selectedNode, position.X - selectedNode.Width / 2);
@@ -123,7 +127,7 @@ namespace berger.Pages
             {
                 selectedNode = null;
                 isMiddleMouseDown = false;
-               // canva.ReleaseMouseCapture(); // Zakończ przechwytywanie myszy
+                // canva.ReleaseMouseCapture(); // Zakończ przechwytywanie myszy
             }
         }
         private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
