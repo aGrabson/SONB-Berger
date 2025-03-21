@@ -5,43 +5,62 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:berger.Windows"
         mc:Ignorable="d"
-        Title="ConnectWindow" Height="450" Width="800">
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="3*"/>
-            <ColumnDefinition Width="1*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="1*"/>
-            <RowDefinition Height="2*"/>
-            <RowDefinition Height="1*"/>
-        </Grid.RowDefinitions>
-        <Grid Grid.Row="1" Grid.Column="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="1*"/>
-                <RowDefinition Height="1*"/>
-                <RowDefinition Height="1*"/>
-            </Grid.RowDefinitions>
-            <Grid Grid.Row="0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="1*"/>
-                    <RowDefinition Height="1*"/>
-                </Grid.RowDefinitions>
-                <Label Grid.Row="0" Content="Podaj adres ip" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <TextBox Grid.Row="1" x:Name="ip" Text="127.0.0.1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            </Grid>
-            <Grid Grid.Row="1">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="1*"/>
-                    <RowDefinition Height="1*"/>
-                </Grid.RowDefinitions>
-                <Label Grid.Row="0" Content="Podaj port" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <TextBox Grid.Row="1" x:Name="port" Text="8888" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            </Grid>
+        Title="ConnectWindow" Height="450" Width="800"
+        WindowStartupLocation="CenterScreen"
+        >
 
-            
-            <Button Grid.Row="2" x:Name="Connect" Content="Dołącz" Click="Connect_Button_Click"/>
-        </Grid>
+    <Grid Style="{StaticResource GridBackgroundStyle}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="3*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Viewbox Grid.Row="1" Grid.Column="1" Stretch="Uniform">
+            <Border Style="{StaticResource ButtonArea}" Margin="10" Padding="20"
+                    MinWidth="300" MinHeight="200"
+                    MaxWidth="600" MaxHeight="400"
+                    CornerRadius="15" 
+                    Effect="{DynamicResource ShadowEffect}">
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Label Grid.Row="0" Content="Podaj adres IP" HorizontalAlignment="Center" FontWeight="Bold"/>
+                        <TextBox Grid.Row="1" x:Name="ip" Text="127.0.0.1"
+                                 Style="{StaticResource StyledTextBox}"/>
+                    </Grid>
+
+                    <Grid Grid.Row="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Label Grid.Row="0" Content="Podaj port" HorizontalAlignment="Center" FontWeight="Bold"/>
+                        <TextBox Grid.Row="1" x:Name="port" Text="8888"
+                                 Style="{StaticResource StyledTextBox}"/>
+                    </Grid>
+                    <Button Grid.Row="2" x:Name="Connect" Content="Dołącz"
+                            Click="Connect_Button_Click"
+                            Style="{StaticResource StyledButton}" />
+                </Grid>
+
+            </Border>
+        </Viewbox>
     </Grid>
 </Window>

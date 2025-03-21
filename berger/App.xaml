@@ -4,6 +4,79 @@
              xmlns:local="clr-namespace:berger"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <Style x:Key="GridBackgroundStyle" TargetType="Grid">
+            <Setter Property="Background" Value="#f0e8df"/>
+        </Style>
+        <Style x:Key="ButtonArea" TargetType="Border">
+            <Setter Property="Background" Value="#F2E2B1"/>
+        </Style>
+        <Style x:Key="StyledButton" TargetType="Button">
+            <Setter Property="Background" Value="#D5C7A3"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Width" Value="200"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="10" Color="#888" ShadowDepth="3"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                        CornerRadius="25" 
+                        BorderBrush="Transparent"
+                        Padding="10">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#c9bea1"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#BDB395"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+        </Style>
+        <DropShadowEffect x:Key="ShadowEffect" BlurRadius="10" ShadowDepth="3" Color="#888"/>
+        <Style x:Key="StyledTextBox" TargetType="TextBox">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="Width" Value="200"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="Gray"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="5" Color="#aaa" ShadowDepth="2"/>
+                </Setter.Value>
+            </Setter>
+
+            <Style.Triggers>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="BorderBrush" Value="Black"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect BlurRadius="10" Color="#BDB395" ShadowDepth="3"/>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Application.Resources>
+
 </Application>

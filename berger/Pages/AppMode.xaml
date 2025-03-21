@@ -5,28 +5,43 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:berger.Pages"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
-     >
+      d:DesignHeight="450" d:DesignWidth="800">
 
-    <Grid>
+    <Grid Style="{StaticResource GridBackgroundStyle}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="3*"/>
-            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="3*" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
+
         <Grid.RowDefinitions>
-            <RowDefinition Height="1*"/>
-            <RowDefinition Height="2*"/>
-            <RowDefinition Height="1*"/>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Grid Grid.Row="1" Grid.Column="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="1*"/>
-                <RowDefinition Height="1*"/>
-                <RowDefinition Height="1*"/>
-            </Grid.RowDefinitions>
-            <Button Grid.Row="0" x:Name="ServerMode" Content="Tryb Serwera" Click="ServerMode_Button_Click"/>
-            <Button Grid.Row="2" x:Name="ClientMode" Content="Tryb Klienta" Click="ClientMode_Button_Click"/>
-        </Grid>
+
+        <Viewbox Grid.Row="1" Grid.Column="1" Stretch="Uniform">
+            <Border Style="{StaticResource ButtonArea}" Margin="10" Padding="20"
+                    MinWidth="300" MinHeight="200"
+                    MaxWidth="600" MaxHeight="400"
+                    CornerRadius="15" 
+                    Effect="{DynamicResource ShadowEffect}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="0.3*" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Button Grid.Row="0" x:Name="ServerMode" Content="Tryb Serwera" 
+                            Click="ServerMode_Button_Click"
+                            Style="{StaticResource StyledButton}" />
+
+                    <Button Grid.Row="2" x:Name="ClientMode" Content="Tryb Klienta" 
+                            Click="ClientMode_Button_Click"
+                            Style="{StaticResource StyledButton}" />
+                </Grid>
+            </Border>
+        </Viewbox>
     </Grid>
 </UserControl>
