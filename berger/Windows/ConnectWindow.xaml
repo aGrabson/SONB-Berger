@@ -29,7 +29,7 @@
                     <RowDefinition Height="1*"/>
                 </Grid.RowDefinitions>
                 <Label Grid.Row="0" Content="Podaj adres ip" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <TextBox Grid.Row="1" x:Name="ip" Text="Wybierz tryb aplikacji" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBox Grid.Row="1" x:Name="ip" Text="127.0.0.1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Grid>
             <Grid Grid.Row="1">
                 <Grid.RowDefinitions>
@@ -37,7 +37,7 @@
                     <RowDefinition Height="1*"/>
                 </Grid.RowDefinitions>
                 <Label Grid.Row="0" Content="Podaj port" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <TextBox Grid.Row="1" x:Name="port" Text="Wybierz tryb aplikacji" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBox Grid.Row="1" x:Name="port" Text="8888" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Grid>
 
             

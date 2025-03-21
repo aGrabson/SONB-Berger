@@ -22,8 +22,10 @@ namespace berger.Threads
         private int serverPort = 8888;
         private int connectedClientsCounter = 0;
         public bool mainServer = false;
+        public IPAddress listenerIP;
+        public int listenerPort = 0;
 
-    public ListenerThread(bool mainServer)
+        public ListenerThread(bool mainServer)
         {
             this.mainServer = mainServer;
             thread = new Thread(new ParameterizedThreadStart(threadTask));
@@ -52,6 +54,9 @@ namespace berger.Threads
                 listener = new TcpListener(IPAddress.Any, serverPort);
                 listener.Start();
                 Debug.WriteLine($"Serwer {(mainServer == true ? "nadzorujący" : "")} uruchomiony. Oczekiwanie na połączenia...");
+                IPEndPoint localEndPoint = (IPEndPoint)listener.LocalEndpoint;
+                listenerIP = localEndPoint.Address;
+                listenerPort = localEndPoint.Port;
 
                 while (true)
                 {
@@ -61,6 +66,7 @@ namespace berger.Threads
                     handleClientThread.start(client);
                     connectedClientsCounter++;
                     Debug.WriteLine($"Podłączono serwer...");
+                    
                 }
             }
             catch (Exception ex)

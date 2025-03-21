@@ -34,6 +34,11 @@ namespace berger.Pages
             InitializeComponent();
             GraphCanvas.Loaded += (s, e) => InitCanvas();
             listenerThread.start();
+            Application.Current.Exit += OnApplicationExit;
+        }
+        private void OnApplicationExit(object sender, ExitEventArgs e)
+        {
+            listenerThread.stop();
         }
         private void InitCanvas()
         {
