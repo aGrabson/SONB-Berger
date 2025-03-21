@@ -19,11 +19,12 @@ namespace berger.Pages
     /// <summary>
     /// Logika interakcji dla klasy GraphEditor.xaml
     /// </summary>
-    public partial class GraphEditor : Page
+    public partial class GraphEditor : UserControl
     {
         private Ellipse firstRightClickedElipse = null;
         private Ellipse selectedNode = null;
         private Line createdLine = null;
+        private bool isMiddleMouseDown = false;
 
         public GraphEditor()
         {
@@ -34,8 +35,12 @@ namespace berger.Pages
         {
             GraphCanvas.MouseLeftButtonDown += Canva_On_Click_Left;
             GraphCanvas.MouseMove += Canva_On_Mouse_Move;
+            GraphCanvas.MouseMove += Canvas_MouseMove;
             createNodeOnWorkspace(new Point(GraphCanvas.ActualWidth/2, GraphCanvas.ActualHeight/2), 50, 50, Brushes.Green);
         }
+
+
+
         private void Canva_On_Click_Left(object sender, MouseButtonEventArgs e)
         {
             Point position = e.GetPosition(GraphCanvas);
@@ -94,12 +99,44 @@ namespace berger.Pages
             Canvas.SetTop(ellipse, position.Y - ellipse.Height / 2);
 
             ellipse.MouseRightButtonDown += Elipse_Click_Right;
+            ellipse.MouseDown += Canvas_MouseDown;
+            ellipse.MouseUp += Canvas_MouseUp;
 
             Panel.SetZIndex(ellipse, 100);
 
             GraphCanvas.Children.Add(ellipse);
 
         }
+
+        private void Canvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            if(selectedNode!=null)
+            {
+                Point position = e.GetPosition(GraphCanvas);
+                Canvas.SetLeft(selectedNode, position.X - selectedNode.Width / 2);
+                Canvas.SetTop(selectedNode, position.Y - selectedNode.Height / 2);
+            }
+        }
+        private void Canvas_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (e.MiddleButton == MouseButtonState.Released)
+            {
+                selectedNode = null;
+                isMiddleMouseDown = false;
+               // canva.ReleaseMouseCapture(); // Zakończ przechwytywanie myszy
+            }
+        }
+        private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.MiddleButton == MouseButtonState.Pressed && sender is Ellipse selectedEllipse)
+            {
+                selectedNode = selectedEllipse;
+                isMiddleMouseDown = true;
+                // startPanPoint = e.GetPosition(canva);
+                // canva.CaptureMouse(); // Upewnij się, że otrzymujesz zdarzenia myszy nawet poza Canvas
+            }
+        }
+
 
         private void actionsAfterCreateLine()
         {

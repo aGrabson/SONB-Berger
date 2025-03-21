@@ -16,9 +16,17 @@ namespace berger
     /// </summary>
     public partial class MainWindow : Window
     {
+        private static ContentControl mainContentRef;
         public MainWindow()
         {
             InitializeComponent();
+            mainContentRef = MainContent;
+            mainContentRef.Content = new Pages.AppMode();
+        }
+        public static void NavigateToPage(UserControl userControl)
+        {
+            if (userControl != null && mainContentRef != null)
+                mainContentRef.Content = userControl;
         }
     }
 }
