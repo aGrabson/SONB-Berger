@@ -7,8 +7,94 @@
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       >
+    <Grid x:Name="grid" Style="{StaticResource GridBackgroundStyle}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="3*" />
+        </Grid.RowDefinitions>
+        <Viewbox Grid.Row="0" Grid.Column="0" Stretch="Uniform" >
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Text="Wpisz wiadomość:" FontSize="16" FontWeight="Bold" Margin="10" HorizontalAlignment="Center"/>
 
-    <Grid>
-        <Canvas x:Name="GraphCanvas" Background="White" />
+                <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                    <UniformGrid Rows="1" Columns="16">
+                        <TextBox x:Name="Bit0" Text="0" Width="25" MaxLength="1" TextAlignment="Center" ToolTip="Bit 0" PreviewTextInput="BitInput_PreviewTextInput"/>
+                        <TextBox x:Name="Bit1" Text="0" Width="25" MaxLength="1" TextAlignment="Center" ToolTip="Bit 1" PreviewTextInput="BitInput_PreviewTextInput"/>
+                        <TextBox x:Name="Bit2" Text="0" Width="25" MaxLength="1" TextAlignment="Center" ToolTip="Bit 2" PreviewTextInput="BitInput_PreviewTextInput"/>
+                        <TextBox x:Name="Bit3" Text="0" Width="25" MaxLength="1" TextAlignment="Center" ToolTip="Bit 3" PreviewTextInput="BitInput_PreviewTextInput"/>
+                        <TextBox x:Name="Bit4" Text="0" Width="25" MaxLength="1" TextAlignment="Center" ToolTip="Bit 4" PreviewTextInput="BitInput_PreviewTextInput"/>
+                        <TextBox x:Name="Bit5" Text="0" Width="25" MaxLength="1" TextAlignment="Center" ToolTip="Bit 5" PreviewTextInput="BitInput_PreviewTextInput"/>
+                        <TextBox x:Name="Bit6" Text="0" Width="25" MaxLength="1" TextAlignment="Center" ToolTip="Bit 6" PreviewTextInput="BitInput_PreviewTextInput"/>
+                        <TextBox x:Name="Bit7" Text="0" Width="25" MaxLength="1" TextAlignment="Center" ToolTip="Bit 7" PreviewTextInput="BitInput_PreviewTextInput"/>
+                        <TextBox x:Name="Bit8" Text="0" Width="25" MaxLength="1" TextAlignment="Center" ToolTip="Bit 8" PreviewTextInput="BitInput_PreviewTextInput"/>
+                        <TextBox x:Name="Bit9" Text="0" Width="25" MaxLength="1" TextAlignment="Center" ToolTip="Bit 9" PreviewTextInput="BitInput_PreviewTextInput"/>
+                        <TextBox x:Name="Bit10" Text="0" Width="25" MaxLength="1" TextAlignment="Center" ToolTip="Bit 10" PreviewTextInput="BitInput_PreviewTextInput"/>
+                        <TextBox x:Name="Bit11" Text="0" Width="25" MaxLength="1" TextAlignment="Center" ToolTip="Bit 11" PreviewTextInput="BitInput_PreviewTextInput"/>
+                        <TextBox x:Name="Bit12" Text="0" Width="25" MaxLength="1" TextAlignment="Center" ToolTip="Bit 12" PreviewTextInput="BitInput_PreviewTextInput"/>
+                        <TextBox x:Name="Bit13" Text="0" Width="25" MaxLength="1" TextAlignment="Center" ToolTip="Bit 13" PreviewTextInput="BitInput_PreviewTextInput"/>
+                        <TextBox x:Name="Bit14" Text="0" Width="25" MaxLength="1" TextAlignment="Center" ToolTip="Bit 14" PreviewTextInput="BitInput_PreviewTextInput"/>
+                        <TextBox x:Name="Bit15" Text="0" Width="25" MaxLength="1" TextAlignment="Center" ToolTip="Bit 15" PreviewTextInput="BitInput_PreviewTextInput"/>
+                    </UniformGrid>
+
+                    <UniformGrid Rows="1" Columns="16" Margin="0,5,0,0">
+                        <TextBlock Text="15" HorizontalAlignment="Center"/>
+                        <TextBlock Text="14" HorizontalAlignment="Center"/>
+                        <TextBlock Text="13" HorizontalAlignment="Center"/>
+                        <TextBlock Text="12" HorizontalAlignment="Center"/>
+                        <TextBlock Text="11" HorizontalAlignment="Center"/>
+                        <TextBlock Text="10" HorizontalAlignment="Center"/>
+                        <TextBlock Text="9" HorizontalAlignment="Center"/>
+                        <TextBlock Text="8" HorizontalAlignment="Center"/>
+                        <TextBlock Text="7" HorizontalAlignment="Center"/>
+                        <TextBlock Text="6" HorizontalAlignment="Center"/>
+                        <TextBlock Text="5" HorizontalAlignment="Center"/>
+                        <TextBlock Text="4" HorizontalAlignment="Center"/>
+                        <TextBlock Text="3" HorizontalAlignment="Center"/>
+                        <TextBlock Text="2" HorizontalAlignment="Center"/>
+                        <TextBlock Text="1" HorizontalAlignment="Center"/>
+                        <TextBlock Text="0" HorizontalAlignment="Center"/>
+                    </UniformGrid>
+                </StackPanel>
+
+                <Button Grid.Row="2" x:Name="SendMessage" Content="Wyślij" Style="{StaticResource StyledButton}" Click="SendMessage_Click"/>
+                <ListView x:Name="listView"  Margin="1,0,0,0" Grid.Column="1" Grid.RowSpan="3" MaxWidth="500">
+                    <ListView.View>
+                        <GridView AllowsColumnReorder="True">
+                            <GridViewColumn DisplayMemberBinding="{Binding Node}" Header="Port Noda" Width="Auto"/>
+                            <GridViewColumn DisplayMemberBinding="{Binding correctNumberMessages}" Header="liczba poprawnych wiadomości" Width="Auto"/>
+                            <GridViewColumn DisplayMemberBinding="{Binding NumberMessagesSent}" Header="Liczba wiadomości" Width="Auto"/>
+                        </GridView>
+                    </ListView.View>
+
+                </ListView>
+            </Grid>
+            
+        </Viewbox>
+        
+        <Grid Grid.Row="1">
+            <Canvas x:Name="GraphCanvas" Background="White"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Canvas.RenderTransform>
+                    <TransformGroup>
+                        
+                        <TranslateTransform x:Name="translateTransform" X="0" Y="0"/>
+                    </TransformGroup>
+                </Canvas.RenderTransform>
+            </Canvas>
+        </Grid>
+
     </Grid>
+
 </UserControl>
