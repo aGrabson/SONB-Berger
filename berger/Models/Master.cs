@@ -15,7 +15,7 @@ namespace berger.Models
         private TcpListener server;
         private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         private Task serverTask;
-        public event Action<string>? ClientConnected;
+        public event Action<Tuple<string, int>>? ClientConnected;
 
         public ConcurrentDictionary<string, Tuple<TcpClient, int>> connectedClients = new ConcurrentDictionary<string, Tuple<TcpClient, int>>();
 
@@ -41,7 +41,7 @@ namespace berger.Models
                         connectedClients.TryAdd(clientId, new Tuple<TcpClient, int>(client, 0));
 
                         Console.WriteLine($"Nowy klient: {clientId}");
-                        ClientConnected?.Invoke(clientId);
+                        
 
                         Task.Run(() => HandleClient(client, clientId));
                     }
@@ -70,6 +70,8 @@ namespace berger.Models
 
                     if (int.TryParse(message, out int port))
                     {
+                        Tuple<string, int> clientData = new Tuple<string, int>(clientId, port);
+                        ClientConnected?.Invoke(clientData);
                         connectedClients[clientId] = new Tuple<TcpClient, int>(client, port);
                     }
                     else

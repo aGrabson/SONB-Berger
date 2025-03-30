@@ -14,6 +14,6 @@
         </Grid.RowDefinitions>
         <Frame Grid.Row="0" Source="ErrorInjectionPage.xaml"/>
         <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="Gray" />
-        <Frame Grid.Row="2" Source="RecievedMessagesListPage.xaml"/>
+        <Frame Grid.Row="2" Source="ReceivedMessagesListPage.xaml"/>
     </Grid>
 </UserControl>

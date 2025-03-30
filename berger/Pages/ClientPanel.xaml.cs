@@ -30,6 +30,7 @@ namespace berger.Pages
             ConnectWindow window = new ConnectWindow();
             window.ShowDialog();
             slave = new Slave(window.IpAddress, window.Port);
+            Application.Current.MainWindow.Title = slave.GetServerPort().ToString();
             Application.Current.Exit += OnApplicationExit;
             
 

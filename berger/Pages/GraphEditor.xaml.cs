@@ -73,7 +73,7 @@ namespace berger.Pages
             //createNodeOnWorkspace(new Point(GraphCanvas.ActualWidth / 2, GraphCanvas.ActualHeight / 2), 50, 50, Brushes.Green, "2");
         }
 
-        private void OnClientConnected(string clientId)
+        private void OnClientConnected(Tuple<string, int> clientData)
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
@@ -82,11 +82,11 @@ namespace berger.Pages
                 double y = rand.Next(50, (int)GraphCanvas.ActualHeight - 50);
                 if (!masterCreated)
                 {
-                    CreateNodeOnWorkspace(new Point(GraphCanvas.ActualWidth / 2, GraphCanvas.ActualHeight / 2), 70, 70, Brushes.Green, clientId);
+                    CreateNodeOnWorkspace(new Point(GraphCanvas.ActualWidth / 2, GraphCanvas.ActualHeight / 2), 70, 70, Brushes.Green, clientData.Item1, clientData.Item2);
                     masterCreated = true;
                 }   
                 else
-                    CreateNodeOnWorkspace(new Point(x, y), 50, 50, Brushes.Sienna, clientId);
+                    CreateNodeOnWorkspace(new Point(x, y), 50, 50, Brushes.Sienna, clientData.Item1, clientData.Item2);
             });
         }
         private void BitInput_PreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -95,6 +95,7 @@ namespace berger.Pages
         }
         private void SendMessage_Click(object sender, RoutedEventArgs e)
         {
+
             string bitValue = "";
             foreach (TextBox textBox in textBoxes)
             {
@@ -106,6 +107,7 @@ namespace berger.Pages
                 return;
             }
             //MessageBox.Show($"{bitValue}");
+            slave.BroadcastMessage(bitValue, "");
 
         }
         private void Canva_MouseWheel(object sender, MouseWheelEventArgs e)
@@ -224,7 +226,7 @@ namespace berger.Pages
             }
         }
 
-        private void CreateNodeOnWorkspace(Point position, int width, int height, SolidColorBrush colorBrush, string clientId = "")
+        private void CreateNodeOnWorkspace(Point position, int width, int height, SolidColorBrush colorBrush, string clientId = "", int port = 65535)
         {
             Grid nodeContainer = new()
             {
@@ -244,7 +246,7 @@ namespace berger.Pages
 
             Label label = new()
             {
-                Content = "65535",
+                Content = port,
                 FontSize = 13,
                 FontWeight = FontWeights.Bold,
                 IsHitTestVisible = false,

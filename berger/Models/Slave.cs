@@ -20,6 +20,8 @@ namespace berger.Models
         private Task serverTask;
         public IPAddress serverIP;
         private TcpClient masterClient;
+        public event Action<Tuple<string, int>>? ReceivedMessage;
+
 
         static ConcurrentDictionary<string, TcpClient> connectedClients = new ConcurrentDictionary<string, TcpClient>();
         static ConcurrentDictionary<string, TcpClient> outgoingClients = new ConcurrentDictionary<string, TcpClient>();
@@ -132,7 +134,10 @@ namespace berger.Models
 
                     string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
                     Console.WriteLine($"Otrzymano: {message} od {clientId}"); //tu otrzymamy wiadomosc z kodem bergera prawdopobnie tylko
-
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        MessageBox.Show($"Otrzymano {message} ");
+                    });
                     BroadcastMessage(message, clientId);
                 }
             }
@@ -146,7 +151,7 @@ namespace berger.Models
                 client.Close();
             }
         }
-        private void BroadcastMessage(string message, string senderId)
+        public void BroadcastMessage(string message, string senderId)
         {
             byte[] messageBytes = Encoding.UTF8.GetBytes(message);
 
@@ -252,6 +257,10 @@ namespace berger.Models
             outgoingClients.Clear();
             masterClient.Close();
             Console.WriteLine("Serwer został zamknięty.");
+        }
+        public int GetServerPort()
+        {
+            return serverPort;
         }
     }
 }

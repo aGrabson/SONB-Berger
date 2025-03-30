@@ -18,16 +18,16 @@ using berger.ListViewTemplates;
 namespace berger.Pages
 {
     /// <summary>
-    /// Logika interakcji dla klasy RecievedMessagesListPage.xaml
+    /// Logika interakcji dla klasy ReceivedMessagesListPage.xaml
     /// </summary>
-    public partial class RecievedMessagesListPage : Page
+    public partial class ReceivedMessagesListPage : Page
     {
-        public ObservableCollection<RecivedMessageRow> RecivedMessageList { get; } = new ObservableCollection<RecivedMessageRow>();
-        public RecievedMessagesListPage()
+        public ObservableCollection<ReceivedMessageRow> ReceivedMessageList { get; } = new ObservableCollection<ReceivedMessageRow>();
+        public ReceivedMessagesListPage()
         {
             InitializeComponent();
-            listView.ItemsSource = RecivedMessageList;
-            RecivedMessageList.Add(new RecivedMessageRow() { Id = 1, RecivedMessage = "Test", ErrorFlag = false });
+            listView.ItemsSource = ReceivedMessageList;
+            ReceivedMessageList.Add(new ReceivedMessageRow() { Id = 1, ReceivedMessage = "Test", ErrorFlag = false });
             listView.SizeChanged += (s, e) => ResizeLastColumn();
 
         }

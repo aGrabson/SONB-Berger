@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace berger.ListViewTemplates
 {
-    public class RecivedMessageRow
+    public class ReceivedMessageRow
     {
         public int Id { get; set; }
-        public string RecivedMessage { get; set; }
+        public string ReceivedMessage { get; set; }
         public bool ErrorFlag { get; set; }
+        public DateTime ReceivedDate { get; set; }
     }
 }
