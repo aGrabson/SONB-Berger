@@ -1,4 +1,5 @@
-﻿using System;
+﻿using berger.Pages;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -21,6 +22,7 @@ namespace berger.Models
         public IPAddress serverIP;
         private TcpClient masterClient;
         public event Action<Tuple<string, int>>? ReceivedMessage;
+        private int RowCounter = 0;
 
 
         static ConcurrentDictionary<string, TcpClient> connectedClients = new ConcurrentDictionary<string, TcpClient>();
@@ -136,6 +138,8 @@ namespace berger.Models
                     Console.WriteLine($"Otrzymano: {message} od {clientId}"); //tu otrzymamy wiadomosc z kodem bergera prawdopobnie tylko
                     Application.Current.Dispatcher.Invoke(() =>
                     {
+                        ReceivedMessagesListPage.ReceivedMessageList.Add(new ListViewTemplates.ReceivedMessageRow() { Id = RowCounter, ReceivedMessage = message, ErrorFlag = false });
+                        RowCounter++;
                         MessageBox.Show($"Otrzymano {message} ");
                     });
                     BroadcastMessage(message, clientId);

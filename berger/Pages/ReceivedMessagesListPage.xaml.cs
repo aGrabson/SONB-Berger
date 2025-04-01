@@ -22,12 +22,11 @@ namespace berger.Pages
     /// </summary>
     public partial class ReceivedMessagesListPage : Page
     {
-        public ObservableCollection<ReceivedMessageRow> ReceivedMessageList { get; } = new ObservableCollection<ReceivedMessageRow>();
+        public static ObservableCollection<ReceivedMessageRow> ReceivedMessageList { get; } = new ObservableCollection<ReceivedMessageRow>();
         public ReceivedMessagesListPage()
         {
             InitializeComponent();
             listView.ItemsSource = ReceivedMessageList;
-            ReceivedMessageList.Add(new ReceivedMessageRow() { Id = 1, ReceivedMessage = "Test", ErrorFlag = false });
             listView.SizeChanged += (s, e) => ResizeLastColumn();
 
         }
