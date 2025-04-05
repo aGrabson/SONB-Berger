@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
 
 namespace berger.Models
 {
@@ -15,9 +16,12 @@ namespace berger.Models
         private TcpListener server;
         private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         private Task serverTask;
-        public event Action<Tuple<string, int>>? ClientConnected;
-
         public ConcurrentDictionary<string, Tuple<TcpClient, int>> connectedClients = new ConcurrentDictionary<string, Tuple<TcpClient, int>>();
+
+        //dla UI
+        public event Action<Tuple<string, int>>? ClientConnected;
+        public event Action<string, Brush> AcknowledgmentReceived;
+        public event Action<string, string> ErrorInjection;
 
         public Master()
         {
@@ -40,7 +44,7 @@ namespace berger.Models
                         string clientId = client.Client.RemoteEndPoint.ToString();
                         connectedClients.TryAdd(clientId, new Tuple<TcpClient, int>(client, 0));
 
-                        Console.WriteLine($"Nowy klient: {clientId}");
+                        //Console.WriteLine($"Nowy klient: {clientId}");
                         
 
                         Task.Run(() => HandleClient(client, clientId));
@@ -68,7 +72,29 @@ namespace berger.Models
                     string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
                     Console.WriteLine($"Otrzymano: {message} od {clientId}");
 
-                    if (int.TryParse(message, out int port))
+                    if (message.StartsWith("ACK:"))
+                    {
+                        string status = message.Substring(4).Trim();
+                        Console.WriteLine($"Potwierdzenie od {clientId}: {status}");
+
+                        if (status == "OK")
+                        {
+                            AcknowledgmentReceived?.Invoke(clientId, Brushes.LightGreen);
+                        }
+                        else if (status == "ERROR")
+                        {
+                            AcknowledgmentReceived?.Invoke(clientId, Brushes.Red);
+                        }
+                    }
+                    else if (message.StartsWith("INJ:"))
+                    {
+                        string status = message.Substring(4).Trim();
+                        Console.WriteLine($"Włączenie wstrzykiwania błędu od {clientId}: {status}");
+
+                        ErrorInjection?.Invoke(clientId, status);
+
+                    }
+                    else if(int.TryParse(message, out int port))
                     {
                         Tuple<string, int> clientData = new Tuple<string, int>(clientId, port);
                         ClientConnected?.Invoke(clientData);
@@ -76,7 +102,7 @@ namespace berger.Models
                     }
                     else
                     {
-                        Console.WriteLine($"Wiadomość '{message}' nie jest poprawnym numerem portu.");
+                        //Console.WriteLine($"Wiadomość '{message}' nie jest poprawnym numerem portu.");
                     }
                 }
             }

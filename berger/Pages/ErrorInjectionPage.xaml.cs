@@ -1,4 +1,5 @@
-﻿using System;
+﻿using berger.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,6 +23,9 @@ namespace berger.Pages
     public partial class ErrorInjectionPage : Page
     {
         private List<TextBox> textBoxes;
+        private bool isBitFlip = false;
+        private bool isPaused = false;
+        private bool isOverload = false;
         public ErrorInjectionPage()
         {
             InitializeComponent();
@@ -36,22 +40,55 @@ namespace berger.Pages
 
         private void BitFlipButton_Click(object sender, RoutedEventArgs e)
         {
+            bool tmpBool = isBitFlip;
             string bitValue = "";
             foreach (TextBox textBox in textBoxes)
             {
                 bitValue += textBox.Text=="0"||textBox.Text=="1"?textBox.Text:"-";
             }
+            Slave.bitFlipMask = bitValue;
+            isBitFlip = bitValue.Any(c => c == '0' || c == '1');
             MessageBox.Show($"Maska: {bitValue}", "Sukces");
+
+            if (tmpBool != isBitFlip)
+            {
+                Slave.SendMessageToMaster($"INJ: bitflip");
+            }
 
         }
 
         private void DisconnectButton_Click(object sender, RoutedEventArgs e)
         {
-
+            bool tmpBool = isPaused;
+            if (isPaused)
+            {
+                isPaused = false;
+                disconnectButton.Content = "Odłącz";
+                Slave.ResumeServer();
+            }
+            else
+            {
+                isPaused = true;
+                disconnectButton.Content = "Połącz";
+                Slave.PauseServer();
+            }
+            if (tmpBool != isPaused)
+            {
+                Slave.SendMessageToMaster($"INJ: disconnect");
+            }
         }
 
         private void OverloadButton_Click(object sender, RoutedEventArgs e)
         {
+            bool tmpBool = isOverload;
+            isOverload = int.Parse(DelayTextBox.Text) != 0;
+            Slave.serverDragTime = int.Parse(DelayTextBox.Text);
+            ActualDelay.Text = DelayTextBox.Text;
+
+            if (tmpBool != isOverload) 
+            { 
+                Slave.SendMessageToMaster($"INJ: overload");
+            }
 
         }
         private void BitInput_PreviewTextInput(object sender, TextCompositionEventArgs e)

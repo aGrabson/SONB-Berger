@@ -44,6 +44,8 @@ namespace berger.Pages
             slave = new Slave("127.0.0.1", master.GetServerPort());
             GraphCanvas.Loaded += (s, e) => InitCanvas();
             master.ClientConnected += OnClientConnected;
+            master.AcknowledgmentReceived += (id, brush) => FlashNodeColor(id, brush);
+            master.ErrorInjection += ToggleStatusIconOnNode;
 
 
             Application.Current.Exit += OnApplicationExit;
@@ -109,6 +111,7 @@ namespace berger.Pages
             //MessageBox.Show($"{bitValue}");
             int zeroCount = bitValue.Count(c => c == '0');
             string bergerCode = Convert.ToString(zeroCount, 2).PadLeft(5, '0');
+
             string fullMessage = bitValue + bergerCode;
 
             slave.BroadcastMessage(fullMessage, "");
@@ -258,6 +261,15 @@ namespace berger.Pages
                 VerticalAlignment = VerticalAlignment.Center,
            };
 
+            StackPanel statusIconPanel = new()
+            {
+                Orientation = Orientation.Vertical,
+                VerticalAlignment = VerticalAlignment.Top,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                Margin = new Thickness(0, 0, -20, 0),
+                Tag = "StatusPanel"
+            };
+
             nodeContainer.Tag = clientId;
 
             nodeContainer.MouseRightButtonDown += Node_Click_Right;
@@ -266,6 +278,7 @@ namespace berger.Pages
 
             nodeContainer.Children.Add(ellipse);
             nodeContainer.Children.Add(label);
+            nodeContainer.Children.Add(statusIconPanel);
 
             Canvas.SetLeft(nodeContainer, position.X - nodeContainer.Width / 2);
             Canvas.SetTop(nodeContainer, position.Y - nodeContainer.Height / 2);
@@ -457,5 +470,102 @@ namespace berger.Pages
         {
             master.SendConnectionDetailsMessage(firstRightClickedElipse.Tag.ToString(), clickedEllipse.Tag.ToString()); 
         }
+        private async void FlashNodeColor(string clientId, Brush flashColor, int durationMs = 500)
+        {
+            var node = Application.Current.Dispatcher.Invoke(() =>
+                GraphCanvas.Children.OfType<Grid>()
+                    .FirstOrDefault(g => g.Tag is string id && id == clientId)
+            );
+
+            if (node == null) return;
+
+            var ellipse = Application.Current.Dispatcher.Invoke(() =>
+                node.Children.OfType<Ellipse>().FirstOrDefault()
+            );
+            
+            if (ellipse == null) return;
+
+            Brush originalBrush = Brushes.Black;
+            double originalThickness = 0;
+
+            //Application.Current.Dispatcher.Invoke(() =>
+            //{
+            //    originalBrush = ellipse.Stroke;
+            //    originalThickness = ellipse.StrokeThickness;
+            //}
+            //);
+
+            await Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                ellipse.Stroke = flashColor;
+                ellipse.StrokeThickness = 4;
+            });
+
+            await Task.Delay(durationMs);
+
+            await Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                ellipse.Stroke = originalBrush;
+                ellipse.StrokeThickness = originalThickness;
+            });
+        }
+        private void ToggleStatusIconOnNode(string clientId, string status)
+        {
+            var node = Application.Current.Dispatcher.Invoke(() =>
+                GraphCanvas.Children.OfType<Grid>()
+                    .FirstOrDefault(g => g.Tag is string id && id == clientId)
+            );
+
+            if (node == null) return;
+
+            var panel = Application.Current.Dispatcher.Invoke(() =>
+                node.Children
+                    .OfType<StackPanel>()
+                    .FirstOrDefault(p => p.Tag?.ToString() == "StatusPanel")
+            );
+
+            if (panel == null) return;
+
+            var existing = Application.Current.Dispatcher.Invoke(() =>
+                panel.Children
+                .OfType<TextBlock>()
+                .FirstOrDefault(tb => tb.Tag?.ToString() == status)
+            );
+            
+
+            if (existing != null)
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    panel.Children.Remove(existing);
+                });
+                return;
+            }
+
+            string icon = status switch
+            {
+                "bitflip" => "🔁",
+                "disconnect" => "🔌",
+                "overload" => "⏳",
+                _ => null
+            };
+
+            if (icon == null) return;
+
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                panel.Children.Add(new TextBlock
+                {
+                    Text = icon,
+                    FontSize = 14,
+                    Foreground = Brushes.Blue,
+                    Margin = new Thickness(0, 0, 0, -3),
+                    Tag = status,
+                    IsHitTestVisible = false
+                });
+            });
+        }
+
+
     }
 }

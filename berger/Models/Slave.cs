@@ -20,12 +20,18 @@ namespace berger.Models
         private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         private Task serverTask;
         public IPAddress serverIP;
-        private TcpClient masterClient;
+        private static TcpClient masterClient;
         public event Action<Tuple<string, int>>? ReceivedMessage;
         private int RowCounter = 0;
         private int badMessageCounter = 0;
-        private int goodMessageCounter = 0;
+        private int goodMessageCounter = 0;   
+        private List<string> processedMessages = new List<string>();
 
+
+        //zmienne do symulowania bledow
+        public static string bitFlipMask = "----------------";
+        public static int serverDragTime = 0;
+        private static ManualResetEvent _pauseEvent = new ManualResetEvent(true); // Początkowo wątek nie jest zatrzymany
 
         static ConcurrentDictionary<string, TcpClient> connectedClients = new ConcurrentDictionary<string, TcpClient>();
         static ConcurrentDictionary<string, TcpClient> outgoingClients = new ConcurrentDictionary<string, TcpClient>();
@@ -77,10 +83,10 @@ namespace berger.Models
 
                     if (int.TryParse(message, out int port))
                     {
-                        Application.Current.Dispatcher.Invoke(() =>
-                        {
-                            MessageBox.Show($"Otrzymano informacje o podlaczeniu sie na port: {port}");
-                        });
+                        //Application.Current.Dispatcher.Invoke(() =>
+                        //{
+                        //    MessageBox.Show($"Otrzymano informacje o podlaczeniu sie na port: {port}");
+                        //});
                         ConnectToClient("127.0.0.1", port);
                     }
                     else
@@ -111,10 +117,10 @@ namespace berger.Models
                         string clientId = client.Client.RemoteEndPoint.ToString();
                         connectedClients.TryAdd(clientId, client);
 
-                        Application.Current.Dispatcher.Invoke(() =>
-                        {
-                            MessageBox.Show($"Nowy klient: {clientId}");
-                        });
+                        //Application.Current.Dispatcher.Invoke(() =>
+                        //{
+                        //    MessageBox.Show($"Nowy klient: {clientId}");
+                        //});
                         Task.Run(() => HandleClient(client, clientId));
                     }
                 }
@@ -136,39 +142,62 @@ namespace berger.Models
                     int bytesRead = stream.Read(buffer, 0, buffer.Length);
                     if (bytesRead == 0) break;
 
+                    _pauseEvent.WaitOne();
+                    Thread.Sleep(serverDragTime);
+
                     string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
                     DateTime receivedDate = DateTime.Now;
                     Console.WriteLine($"Otrzymano: {message} od {clientId}"); //tu otrzymamy wiadomosc z kodem bergera prawdopodobnie tylko            
 
-                    if (message.Length < 21)
-                    {
-                        Application.Current.Dispatcher.Invoke(() =>
-                        {
-                            MessageBox.Show($"Wiadomość za krótka! Otrzymano {message}");
-                        });
-                        return;
-                    }
+                    //if (message.Length < 21)
+                    //{
+                    //    Application.Current.Dispatcher.Invoke(() =>
+                    //    {
+                    //        MessageBox.Show($"Wiadomość za krótka! Otrzymano {message}");
+                    //    });
+                    //    continue;
+                    //}
 
                     bool isCorrect = VerifyBergerCode(message, out string originalMessage, out string  berger);
-
-                    if (!isCorrect)
-                    {
-                        badMessageCounter++;
-                        Application.Current.Dispatcher.Invoke(() =>
-                        {
-                            MessageBox.Show($"Błąd: Otrzymano uszkodzoną wiadomość {message}");
-                        });
-                        //wyslanie powiadomienia o bledzie na mastera
-                        return;
-                    }
-                    goodMessageCounter++;
-                    //jezeli dobra wyswietlenie informacji o wiadomosciach, nalozenie zmiany bitu jezeli jest, rozeslanie dalej tej wiadomosci
+                    //zawsze wyswietlamy wiadomosci
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         ReceivedMessagesListPage.ReceivedMessageList.Add(new ListViewTemplates.ReceivedMessageRow() { Id = RowCounter, ReceivedMessage = originalMessage, BergerCode = berger, ErrorFlag = !isCorrect, ReceivedDate = receivedDate });
                         RowCounter++;
-                        MessageBox.Show($"Otrzymano {message} ");
+                        //MessageBox.Show($"Otrzymano {message} ");
                     });
+                    //jezeli wiadomosc niepoprawna to wyslanie komunikatu do mastera
+                    if (!isCorrect)
+                    {
+                        badMessageCounter++;
+                        //Application.Current.Dispatcher.Invoke(() =>
+                        //{
+                        //    MessageBox.Show($"Błąd: Otrzymano uszkodzoną wiadomość {message}");
+                        //});
+                        SendMessageToMaster("ACK: ERROR");
+                        continue;
+                    }
+                    //jezeli poprawna to wyslanie komunikatu do mastera, nalozenie zmiany bitu jezeli jest, rozeslanie dalej tej wiadomosci
+                    goodMessageCounter++;
+                    SendMessageToMaster("ACK: OK");
+
+                    if (bitFlipMask.Any(c => c == '0' || c == '1'))
+                    {
+                        StringBuilder sb = new StringBuilder(message);
+                        for (int i = 0; i < Math.Min(bitFlipMask.Length, message.Length); i++)
+                        {
+                            if (bitFlipMask[i] == '0')
+                            {
+                                sb[i] = '0';
+                            }
+                            else if (bitFlipMask[i] == '1')
+                            {
+                                sb[i] = '1';
+                            }
+                        }
+                        message = sb.ToString();
+                    }
+
                     BroadcastMessage(message, clientId);
                 }
             }
@@ -216,24 +245,27 @@ namespace berger.Models
 
             foreach (var kvp in outgoingClients)
             {
-                try
+                if (kvp.Key != senderId)
                 {
-                    kvp.Value.GetStream().Write(messageBytes, 0, messageBytes.Length);
-                }
-                catch (IOException)
-                {
-                    Console.WriteLine($"Błąd: Klient {kvp.Key} rozłączył się.");
-                    disconnectedClients.Add(kvp.Key);
-                }
-                catch (SocketException)
-                {
-                    Console.WriteLine($"Błąd sieciowy podczas wysyłania do klienta {kvp.Key}.");
-                    disconnectedClients.Add(kvp.Key);
-                }
-                catch (ObjectDisposedException)
-                {
-                    Console.WriteLine($"Błąd: Klient {kvp.Key} został już usunięty.");
-                    disconnectedClients.Add(kvp.Key);
+                    try
+                    {
+                        kvp.Value.GetStream().Write(messageBytes, 0, messageBytes.Length);
+                    }
+                    catch (IOException)
+                    {
+                        Console.WriteLine($"Błąd: Klient {kvp.Key} rozłączył się.");
+                        disconnectedClients.Add(kvp.Key);
+                    }
+                    catch (SocketException)
+                    {
+                        Console.WriteLine($"Błąd sieciowy podczas wysyłania do klienta {kvp.Key}.");
+                        disconnectedClients.Add(kvp.Key);
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        Console.WriteLine($"Błąd: Klient {kvp.Key} został już usunięty.");
+                        disconnectedClients.Add(kvp.Key);
+                    }
                 }
             }
 
@@ -300,9 +332,37 @@ namespace berger.Models
             masterClient.Close();
             Console.WriteLine("Serwer został zamknięty.");
         }
+        public static void SendMessageToMaster(string statusMessage)
+        {
+            try
+            {
+                if (masterClient != null && masterClient.Connected)
+                {
+                    NetworkStream stream = masterClient.GetStream();
+                    byte[] response = Encoding.UTF8.GetBytes(statusMessage);
+                    stream.Write(response, 0, response.Length);
+                    stream.Flush();
+                    Console.WriteLine($"Wysłano do mastera: {statusMessage}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Błąd przy wysyłaniu do mastera: {ex.Message}");
+            }
+        }
         public int GetServerPort()
         {
             return serverPort;
         }
+        public static void PauseServer()
+        {
+            _pauseEvent.Reset();
+        }
+
+        public static void ResumeServer()
+        {
+            _pauseEvent.Set();
+        }
+
     }
 }
