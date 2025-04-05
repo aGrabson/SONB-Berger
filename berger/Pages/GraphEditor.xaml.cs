@@ -107,7 +107,11 @@ namespace berger.Pages
                 return;
             }
             //MessageBox.Show($"{bitValue}");
-            slave.BroadcastMessage(bitValue, "");
+            int zeroCount = bitValue.Count(c => c == '0');
+            string bergerCode = Convert.ToString(zeroCount, 2).PadLeft(5, '0');
+            string fullMessage = bitValue + bergerCode;
+
+            slave.BroadcastMessage(fullMessage, "");
 
         }
         private void Canva_MouseWheel(object sender, MouseWheelEventArgs e)

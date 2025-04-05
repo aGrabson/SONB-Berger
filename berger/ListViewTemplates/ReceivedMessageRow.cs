@@ -10,6 +10,7 @@ namespace berger.ListViewTemplates
     {
         public int Id { get; set; }
         public string ReceivedMessage { get; set; }
+        public string BergerCode { get; set; }
         public bool ErrorFlag { get; set; }
         public DateTime ReceivedDate { get; set; }
     }

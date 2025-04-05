@@ -23,6 +23,8 @@ namespace berger.Models
         private TcpClient masterClient;
         public event Action<Tuple<string, int>>? ReceivedMessage;
         private int RowCounter = 0;
+        private int badMessageCounter = 0;
+        private int goodMessageCounter = 0;
 
 
         static ConcurrentDictionary<string, TcpClient> connectedClients = new ConcurrentDictionary<string, TcpClient>();
@@ -135,10 +137,35 @@ namespace berger.Models
                     if (bytesRead == 0) break;
 
                     string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                    Console.WriteLine($"Otrzymano: {message} od {clientId}"); //tu otrzymamy wiadomosc z kodem bergera prawdopobnie tylko
+                    DateTime receivedDate = DateTime.Now;
+                    Console.WriteLine($"Otrzymano: {message} od {clientId}"); //tu otrzymamy wiadomosc z kodem bergera prawdopodobnie tylko            
+
+                    if (message.Length < 21)
+                    {
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            MessageBox.Show($"Wiadomość za krótka! Otrzymano {message}");
+                        });
+                        return;
+                    }
+
+                    bool isCorrect = VerifyBergerCode(message, out string originalMessage, out string  berger);
+
+                    if (!isCorrect)
+                    {
+                        badMessageCounter++;
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            MessageBox.Show($"Błąd: Otrzymano uszkodzoną wiadomość {message}");
+                        });
+                        //wyslanie powiadomienia o bledzie na mastera
+                        return;
+                    }
+                    goodMessageCounter++;
+                    //jezeli dobra wyswietlenie informacji o wiadomosciach, nalozenie zmiany bitu jezeli jest, rozeslanie dalej tej wiadomosci
                     Application.Current.Dispatcher.Invoke(() =>
                     {
-                        ReceivedMessagesListPage.ReceivedMessageList.Add(new ListViewTemplates.ReceivedMessageRow() { Id = RowCounter, ReceivedMessage = message, ErrorFlag = false });
+                        ReceivedMessagesListPage.ReceivedMessageList.Add(new ListViewTemplates.ReceivedMessageRow() { Id = RowCounter, ReceivedMessage = originalMessage, BergerCode = berger, ErrorFlag = !isCorrect, ReceivedDate = receivedDate });
                         RowCounter++;
                         MessageBox.Show($"Otrzymano {message} ");
                     });
@@ -215,6 +242,17 @@ namespace berger.Models
                 connectedClients.TryRemove(clientId, out _);
                 outgoingClients.TryRemove(clientId, out _);
             }
+        }
+        private bool VerifyBergerCode(string messageWithBerger, out string originalMessage, out string bergerCode)
+        {
+            originalMessage = messageWithBerger.Substring(0, messageWithBerger.Length - 5);
+            bergerCode = messageWithBerger.Substring(messageWithBerger.Length - 5);
+
+            int actualZeroCount = originalMessage.Count(c => c == '0');
+            int expectedZeroCount = Convert.ToInt32(bergerCode, 2);
+            bool isValid = actualZeroCount == expectedZeroCount;
+
+            return isValid;
         }
         public void ConnectToClient(string ip, int port)
         {

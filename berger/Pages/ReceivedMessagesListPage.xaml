@@ -15,6 +15,8 @@
                     <GridViewColumn DisplayMemberBinding="{Binding Id}" Header="Lp" Width="Auto"/>
                     <GridViewColumn DisplayMemberBinding="{Binding ErrorFlag}" Header="Błąd" Width="Auto"/>
                     <GridViewColumn DisplayMemberBinding="{Binding ReceivedMessage}" Header="Otrzymana wiadomość" Width="Auto"/>
+                    <GridViewColumn DisplayMemberBinding="{Binding BergerCode}" Header="Kod Bergera" Width="Auto"/>
+                    <GridViewColumn DisplayMemberBinding="{Binding ReceivedDate}" Header="Data otrzymania" Width="Auto"/>
                     
 
                 </GridView>
