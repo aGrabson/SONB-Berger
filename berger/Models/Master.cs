@@ -1,4 +1,5 @@
-﻿using System;
+﻿using berger.Pages;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 
 namespace berger.Models
@@ -92,13 +94,54 @@ namespace berger.Models
                         Console.WriteLine($"Włączenie wstrzykiwania błędu od {clientId}: {status}");
 
                         ErrorInjection?.Invoke(clientId, status);
+                    }
+                    else if (message.StartsWith("INF:"))
+                    {
+                        string info = message.Substring(4).Trim();
+                        string[] parts = info.Split(',');
 
+                        int number1 = int.Parse(parts[0]);
+                        int number2 = int.Parse(parts[1]);
+                        Console.WriteLine($"Od klienta dostano informacje, poprawne wiadomości: {number2}, ogólna liczba wiadomości {number1}");
+
+                        var existingInfo = GraphEditor.MessagesInfoList
+                                           .FirstOrDefault(row => row.ClientID == clientId);
+
+                        if (existingInfo != null)
+                        {
+                            existingInfo.CorrectNumberMessages = number2;
+                            existingInfo.NumberMessages = number1;
+                        }
+                        else
+                        {
+                            Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                GraphEditor.MessagesInfoList.Add(new ListViewTemplates.MessageInfoRow
+                                {
+                                    ClientID = clientId,
+                                    ClientPort = connectedClients[clientId].Item2.ToString(),
+                                    CorrectNumberMessages = number2,
+                                    NumberMessages = number1
+                                });
+                            });
+                            
+                        }
                     }
                     else if(int.TryParse(message, out int port))
                     {
                         Tuple<string, int> clientData = new Tuple<string, int>(clientId, port);
                         ClientConnected?.Invoke(clientData);
                         connectedClients[clientId] = new Tuple<TcpClient, int>(client, port);
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            GraphEditor.MessagesInfoList.Add(new ListViewTemplates.MessageInfoRow
+                            {
+                                ClientID = clientId,
+                                ClientPort = connectedClients[clientId].Item2.ToString(),
+                                CorrectNumberMessages = 0,
+                                NumberMessages = 0
+                            });
+                        });
                     }
                     else
                     {

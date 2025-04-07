@@ -72,9 +72,9 @@
                 <ListView x:Name="listView"  Margin="1,0,0,0" Grid.Column="1" Grid.RowSpan="3" MaxWidth="500">
                     <ListView.View>
                         <GridView AllowsColumnReorder="True">
-                            <GridViewColumn DisplayMemberBinding="{Binding Node}" Header="Port Noda" Width="Auto"/>
-                            <GridViewColumn DisplayMemberBinding="{Binding correctNumberMessages}" Header="liczba poprawnych wiadomości" Width="Auto"/>
-                            <GridViewColumn DisplayMemberBinding="{Binding NumberMessagesSent}" Header="Liczba wiadomości" Width="Auto"/>
+                            <GridViewColumn DisplayMemberBinding="{Binding ClientPort}" Header="Port Noda" Width="Auto"/>
+                            <GridViewColumn DisplayMemberBinding="{Binding CorrectNumberMessages}" Header="Liczba poprawnych wiadomości" Width="Auto"/>
+                            <GridViewColumn DisplayMemberBinding="{Binding NumberMessages}" Header="Liczba wiadomości" Width="Auto"/>
                         </GridView>
                     </ListView.View>
 

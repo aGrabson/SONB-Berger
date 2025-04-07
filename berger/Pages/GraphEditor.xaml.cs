@@ -1,6 +1,8 @@
-﻿using berger.Models;
+﻿using berger.ListViewTemplates;
+using berger.Models;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -37,15 +39,17 @@ namespace berger.Pages
         private double zoomFactor = 1.1;
         private double currentScale = 1;
         private List<TextBox> textBoxes;
+        public static ObservableCollection<MessageInfoRow> MessagesInfoList { get; } = new ObservableCollection<MessageInfoRow>();
 
         public GraphEditor()
         {
             InitializeComponent();
-            slave = new Slave("127.0.0.1", master.GetServerPort());
-            GraphCanvas.Loaded += (s, e) => InitCanvas();
+            GraphCanvas.Loaded += (s, e) => InitCanvas();       
             master.ClientConnected += OnClientConnected;
             master.AcknowledgmentReceived += (id, brush) => FlashNodeColor(id, brush);
             master.ErrorInjection += ToggleStatusIconOnNode;
+            listView.ItemsSource = MessagesInfoList;
+            slave = new Slave("127.0.0.1", master.GetServerPort());
 
 
             Application.Current.Exit += OnApplicationExit;
@@ -80,15 +84,19 @@ namespace berger.Pages
             Application.Current.Dispatcher.Invoke(() =>
             {
                 Random rand = new Random();
-                double x = rand.Next(50, (int)GraphCanvas.ActualWidth - 50);
-                double y = rand.Next(50, (int)GraphCanvas.ActualHeight - 50);
+                
                 if (!masterCreated)
                 {
                     CreateNodeOnWorkspace(new Point(GraphCanvas.ActualWidth / 2, GraphCanvas.ActualHeight / 2), 70, 70, Brushes.Green, clientData.Item1, clientData.Item2);
                     masterCreated = true;
-                }   
+                }
                 else
+                {
+                    double x = rand.Next(50, (int)GraphCanvas.ActualWidth - 50);
+                    double y = rand.Next(50, (int)GraphCanvas.ActualHeight - 50);
                     CreateNodeOnWorkspace(new Point(x, y), 50, 50, Brushes.Sienna, clientData.Item1, clientData.Item2);
+                }
+                    
             });
         }
         private void BitInput_PreviewTextInput(object sender, TextCompositionEventArgs e)

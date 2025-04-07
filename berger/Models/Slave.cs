@@ -23,6 +23,7 @@ namespace berger.Models
         private static TcpClient masterClient;
         public event Action<Tuple<string, int>>? ReceivedMessage;
         private int RowCounter = 0;
+        private int messageCounter = 0;
         private int badMessageCounter = 0;
         private int goodMessageCounter = 0;   
         private List<string> processedMessages = new List<string>();
@@ -31,7 +32,7 @@ namespace berger.Models
         //zmienne do symulowania bledow
         public static string bitFlipMask = "----------------";
         public static int serverDragTime = 0;
-        private static ManualResetEvent _pauseEvent = new ManualResetEvent(true); // Początkowo wątek nie jest zatrzymany
+        private static ManualResetEvent _pauseEvent = new ManualResetEvent(true);
 
         static ConcurrentDictionary<string, TcpClient> connectedClients = new ConcurrentDictionary<string, TcpClient>();
         static ConcurrentDictionary<string, TcpClient> outgoingClients = new ConcurrentDictionary<string, TcpClient>();
@@ -146,6 +147,7 @@ namespace berger.Models
                     Thread.Sleep(serverDragTime);
 
                     string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                    messageCounter++;
                     DateTime receivedDate = DateTime.Now;
                     Console.WriteLine($"Otrzymano: {message} od {clientId}"); //tu otrzymamy wiadomosc z kodem bergera prawdopodobnie tylko            
 
@@ -197,7 +199,7 @@ namespace berger.Models
                         }
                         message = sb.ToString();
                     }
-
+                    SendMessageToMaster($"INF: {messageCounter},{goodMessageCounter}");
                     BroadcastMessage(message, clientId);
                 }
             }
